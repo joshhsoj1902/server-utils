@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BACKUP_DIR="${BACKUP_DIR:-'/media/backups'}"
+BACKUP_DIR="${BACKUP_DIR:-/media/backups}"
 
 # https://www.journaldev.com/29456/install-7zip-ubuntu
 # apt install p7zip-full p7zip-rar
