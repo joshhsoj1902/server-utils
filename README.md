@@ -5,6 +5,7 @@ A collection of uitls I use on my servers
 ## Example crontab
 
 ```crontab
+0 12 * * * ~/server-utils/scripts/start-portainer.sh
 0 2 * * * cd ~/server-utils && git pull
 0 3 * * * ~/server-utils/scripts/backup.sh
 ```
