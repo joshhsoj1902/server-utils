@@ -5,9 +5,9 @@ BACKUP_DIR="${BACKUP_DIR:-/media/backups}"
 # https://www.journaldev.com/29456/install-7zip-ubuntu
 # apt install p7zip-full p7zip-rar
 
+mkdir -p ~/backups
 # Backup crontab
 crontab -l > ~/backups/crontab.backup
-
 # Backup fstab
 cp -p /etc/fstab ~/backups/fstab.backup
 
