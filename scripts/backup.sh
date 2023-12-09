@@ -13,4 +13,10 @@ cp -p /etc/fstab ~/backups/fstab.backup
 
 
 # 7z is used here because it has better support for updating existing archives than tar.
-7z u ${BACKUP_DIR}/backup-$(date +%A).7z ~
+if [ -z "$1" ]
+then
+    7z u ${BACKUP_DIR}/backup-$(date +%A).7z ~
+else
+    #-p allows for a password to be set
+    7z -p"$1" u ${BACKUP_DIR}/backup-$(date +%A).7z ~
+fi
