@@ -15,3 +15,9 @@ A collection of uitls I use on my servers
 ```fstab
 ${REMOTE_SERVER_IP}:${REMOTE_SERVER_PATH} /media/backups/ nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
 ```
+
+## TODO
+
+- Add https://github.com/seamusdemora/RonR-RPi-image-utils as a sub module
+- Look at restructuring server folder structure to not use home dirs Look at https://whimsical.com/fhs-L6iL5t8kBtCFzAQywZyP4X
+- Need to support regular TAR so that nginx-proxy-manager backups work (symlinks usually get messed up)
