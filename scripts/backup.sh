@@ -3,7 +3,7 @@
 # https://www.journaldev.com/29456/install-7zip-ubuntu
 # apt install p7zip-full p7zip-rar
 
-CONFIG_FILE="${CONFIG_FILE:-~/.backup/settings.cfg}"
+CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
 
 if [[ -f "$CONFIG_FILE" ]]; then
     echo "Reading Config_File $CONFIG_FILE"
@@ -11,9 +11,10 @@ if [[ -f "$CONFIG_FILE" ]]; then
 fi
 
 BACKUP_DIR="${BACKUP_DIR:-/media/backups}"
-BACKUP_SRC="${BACKUP_SRC:-~}"
+BACKUP_SRC="${BACKUP_SRC:-$HOME}"
 BACKUP_TOOL="${BACKUP_TOOL:-7z}"
-
+BACKUP_CRONTAB_TO="${BACKUP_CRONTAB_TO:-$BACKUP_SRC/backups}"
+BACKUP_FSTAB_TO="${BACKUP_FSTAB_TO:-$BACKUP_SRC/backups}"
 
 BACKUP_DOW="${BACKUP_DOW:-true}"
 BACKUP_DAILY="${BACKUP_DAILY:-true}"
@@ -44,11 +45,11 @@ do_backup () {
     esac
 }
 
-mkdir -p ~/backups
+mkdir -p $BACKUP_CRONTAB_TO
 # Backup crontab
-crontab -l > ~/backups/crontab.backup
+crontab -l > $BACKUP_CRONTAB_TO/crontab.backup
 # Backup fstab
-cp -p /etc/fstab ~/backups/fstab.backup
+cp -p /etc/fstab $BACKUP_CRONTAB_TO/fstab.backup
 
 if $BACKUP_DOW; then
     do_backup ${BACKUP_DIR}/backup-$(date +%A).7z ${BACKUP_SRC}
