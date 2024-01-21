@@ -6,6 +6,7 @@
 CONFIG_FILE="${CONFIG_FILE:-~/.backup/settings.cfg}"
 
 if [[ -f "$CONFIG_FILE" ]]; then
+    echo "Reading Config_File $CONFIG_FILE"
     source $CONFIG_FILE
 fi
 
