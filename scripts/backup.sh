@@ -4,11 +4,17 @@
 # apt install p7zip-full p7zip-rar
 
 CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
+CONFIG_OVERRIDE_FILE="${CONFIG_OVERRIDE_FILE:-$HOME/.backup/settings_override.cfg}"
 
 if [[ -f "$CONFIG_FILE" ]]; then
     echo "Reading Config_File $CONFIG_FILE"
     source $CONFIG_FILE
 fi
+if [[ -f "$CONFIG_OVERRIDE_FILE" ]]; then
+    echo "Reading Config_Override_File $CONFIG_OVERRIDE_FILE"
+    source $CONFIG_OVERRIDE_FILE
+fi
+
 
 BACKUP_DIR="${BACKUP_DIR:-/media/backups}"
 BACKUP_SRC="${BACKUP_SRC:-$HOME}"
