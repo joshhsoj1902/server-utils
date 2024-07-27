@@ -2,17 +2,17 @@
 
 source backup_util.sh
 
-CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
-CONFIG_OVERRIDE_FILE="${CONFIG_OVERRIDE_FILE:-$HOME/.backup/settings_override.cfg}"
+# CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
+# CONFIG_OVERRIDE_FILE="${CONFIG_OVERRIDE_FILE:-$HOME/.backup/settings_override.cfg}"
 
-if [[ -f "$CONFIG_FILE" ]]; then
-    echo "Reading Config_File $CONFIG_FILE"
-    source $CONFIG_FILE
-fi
-if [[ -f "$CONFIG_OVERRIDE_FILE" ]]; then
-    echo "Reading Config_Override_File $CONFIG_OVERRIDE_FILE"
-    source $CONFIG_OVERRIDE_FILE
-fi
+# if [[ -f "$CONFIG_FILE" ]]; then
+#     echo "Reading Config_File $CONFIG_FILE"
+#     source $CONFIG_FILE
+# fi
+# if [[ -f "$CONFIG_OVERRIDE_FILE" ]]; then
+#     echo "Reading Config_Override_File $CONFIG_OVERRIDE_FILE"
+#     source $CONFIG_OVERRIDE_FILE
+# fi
 
 backup_gameserver () {
   game_backup_dir=${BACKUP_GAME_DIR}/$1_$2
