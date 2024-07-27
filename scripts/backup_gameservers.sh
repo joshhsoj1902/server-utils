@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source backup_utils.sh
+source backup_util.sh
 
 CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
 CONFIG_OVERRIDE_FILE="${CONFIG_OVERRIDE_FILE:-$HOME/.backup/settings_override.cfg}"

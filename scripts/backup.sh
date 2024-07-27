@@ -3,7 +3,7 @@
 # https://www.journaldev.com/29456/install-7zip-ubuntu
 # apt install p7zip-full p7zip-rar
 
-source backup_utils.sh
+source backup_util.sh
 
 CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
 CONFIG_OVERRIDE_FILE="${CONFIG_OVERRIDE_FILE:-$HOME/.backup/settings_override.cfg}"
