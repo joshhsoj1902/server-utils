@@ -2,7 +2,7 @@
 
 # https://www.journaldev.com/29456/install-7zip-ubuntu
 # apt install p7zip-full p7zip-rar
-readonly SELF_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+SELF_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 source $SELF_DIR/backup_util.sh
 
 CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
