@@ -42,7 +42,7 @@ cp -p /etc/fstab $BACKUP_CRONTAB_TO/fstab.backup
 opts=""
 if $BACKUP_GAME_SERVERS; then
     # TODO: this really should be dynamic
-    opts=$(add_7z_exclude "$opts" "docker/lgsm*")
+    opts=$(add_7z_exclude "$opts" "*docker/lgsm*")
 fi
 
 if $BACKUP_DOW; then
