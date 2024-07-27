@@ -1,6 +1,7 @@
 #!/bin/bash
 
-source backup_util.sh
+readonly SELF_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $SELF_DIR/backup_util.sh
 
 backup_gameserver () {
   game_backup_dir=${BACKUP_GAME_DIR}/$1_$2

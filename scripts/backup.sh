@@ -2,8 +2,8 @@
 
 # https://www.journaldev.com/29456/install-7zip-ubuntu
 # apt install p7zip-full p7zip-rar
-
-source backup_util.sh
+readonly SELF_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+source $SELF_DIR/backup_util.sh
 
 CONFIG_FILE="${CONFIG_FILE:-$HOME/.backup/settings.cfg}"
 CONFIG_OVERRIDE_FILE="${CONFIG_OVERRIDE_FILE:-$HOME/.backup/settings_override.cfg}"
@@ -68,5 +68,5 @@ if $BACKUP_MONTHLY; then
 fi
 
 if $BACKUP_GAME_SERVERS; then
-  source backup_gameservers.sh
+  source $SELF_DIR/backup_gameservers.sh
 fi
