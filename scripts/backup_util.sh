@@ -12,6 +12,11 @@
     7z $opts u $1 $2
 }
 
+add_7z_exclude () {
+  echo -n "$1 -xr!$2"
+}
+
+
 do_backup () {
     case $BACKUP_TOOL in
 

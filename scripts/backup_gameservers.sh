@@ -14,36 +14,6 @@ if [[ -f "$CONFIG_OVERRIDE_FILE" ]]; then
     source $CONFIG_OVERRIDE_FILE
 fi
 
-
-# 7z_backup () {
-#     opts=$3
-
-#     if [ -n "$BACKUP_PASSWORD" ]
-#     then
-#         #-p allows for a password to be set
-#         opts=$opts" -p${BACKUP_PASSWORD}"
-#     fi
-#     echo "7z opts $opts"
-#     7z $opts u $1 $2
-# }
-
-# do_backup () {
-#     case $BACKUP_TOOL in
-
-#     "7z")
-#         7z_backup $@
-#         ;;
-
-#     *)
-#         echo "$BACKUP_TOOL Not supported"
-#         ;;
-#     esac
-# }
-
-add_7z_exclude () {
-  echo -n "$1 -xr!$2"
-}
-
 backup_gameserver () {
   game_backup_dir=${BACKUP_GAME_DIR}/$1_$2
   source_folder_name="lgsm_$1_$2"
