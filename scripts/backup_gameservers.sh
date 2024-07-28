@@ -32,6 +32,12 @@ backup_gameserver () {
   opts=$(add_7z_exclude "$opts" "$source_folder_name/config-lgsm/")
 
   case $1 in
+    "pz")
+       opts=$(add_7z_exclude "$opts" "*/serverfiles")
+      ;;
+    "sf")
+       opts=$(add_7z_exclude "$opts" "*/serverfiles")
+      ;;
     "7dtd")
        opts=$(add_7z_exclude "$opts" "*/serverfiles/7DaysToDieServer_Data")
        opts=$(add_7z_exclude "$opts" "*/serverfiles/Data")
@@ -44,7 +50,6 @@ backup_gameserver () {
        opts=$(add_7z_exclude "$opts" "*/serverfiles/libstdc++.so.6")
        opts=$(add_7z_exclude "$opts" "$source_folder_name/log/")
       ;;
-
     *)
       echo "Nothing special to do for $1"
       ;;
