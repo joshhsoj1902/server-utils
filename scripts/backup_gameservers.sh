@@ -56,10 +56,30 @@ backup_gameserver () {
   esac
 
   if $BACKUP_DOW; then
+    if [[ "$(date +%A)" == "Monday" ]]; then
+      # Reset backup on Monday
+      echo "[DOW] Resetting backup since it is Monday"
+      rm $game_backup_dir/slim-backup-$(date +%A).7z
+    else
+      # If not monday, Copy yesterdays backup as starting point
+      echo "[DOW] Copying backup from yesterday to use as base"
+      rm $game_backup_dir/slim-backup-$(date +%A).7z
+      cp -p $game_backup_dir/slim-backup-$(date -d '1 day' +%A).7z $game_backup_dir/slim-backup-$(date +%A).7z
+    fi
     7z_backup $game_backup_dir/slim-backup-$(date +%A).7z $3 "$opts"
+    echo "[DOW] bacjup done"
   fi
 
   if $BACKUP_DAILY; then
+    if [[ "$(date +%A)" == "Monday" ]]; then
+      # Reset backup on Monday
+      echo "[Daily] Resetting backup since it is Monday"
+      rm $game_backup_dir/slim-backup-Daily.7z
+      if $BACKUP_DOW; then
+        echo "[Daily] Copying backup from DOW to use as base"
+        cp -p $game_backup_dir/slim-backup-$(date +%A).7z $game_backup_dir/slim-backup-Daily.7z
+      fi
+    fi
     7z_backup $game_backup_dir/slim-backup-Daily.7z $3 "$opts"
   fi
 
