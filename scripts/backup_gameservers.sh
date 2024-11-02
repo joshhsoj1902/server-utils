@@ -55,33 +55,68 @@ backup_gameserver () {
       ;;
   esac
 
-  if $BACKUP_DOW; then
-    if [[ "$(date +%A)" == "Monday" ]]; then
-      # Reset backup on Monday
-      echo "[DOW] Resetting backup since it is Monday"
-      rm $game_backup_dir/slim-backup-$(date +%A).7z
-    else
-      # If not monday, Copy yesterdays backup as starting point
-      echo "[DOW] Copying backup from yesterday to use as base"
-      rm $game_backup_dir/slim-backup-$(date +%A).7z
-      cp -p $game_backup_dir/slim-backup-$(date -d '1 day' +%A).7z $game_backup_dir/slim-backup-$(date +%A).7z
-    fi
-    7z_backup $game_backup_dir/slim-backup-$(date +%A).7z $3 "$opts"
-    echo "[DOW] bacjup done"
+  BACKUP_NAME="slim-backup"
+  BACKUP_FILETYPE=".7z"
+  # MONTHLY_BACKUP_DAY Is the day of the month to make the backup
+  MONTHLY_BACKUP_DAY="02"
+  # WEEKLY_BACKUP_RESET_DAY Is the day of the week to make new backup instead of appending to the previous day.
+  WEEKLY_BACKUP_RESET_DAY="Monday"
+  DAILY_BACKUP_RESET_DAY="Monday"
+
+  MONTHLY_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME-$(date +%B)$(date +"%Y")$BACKUP_FILETYPE
+  DOW_PREVIOUS_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME-$(date -d '1 day' +%A)$BACKUP_FILETYPE
+  DOW_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME-$(date +%A)$BACKUP_FILETYPE
+  DAILY_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME"-Daily"$BACKUP_FILETYPE
+
+  echo $MONTHLY_BACKUP_NAME
+  echo $DOW_PREVIOUS_BACKUP_NAME
+  echo $DOW_BACKUP_NAME
+  echo $DAILY_BACKUP_NAME
+
+
+  ## Monthly Backup
+  if [[ "$(date +%d)" == $MONTHLY_BACKUP_DAY ]]; then
+    echo "[Monthly] Starting Backup"
+    7z_backup /tmp/$MONTHLY_BACKUP_NAME $3 "$opts"
+    mv /tmp/$MONTHLY_BACKUP_NAME $MONTHLY_BACKUP_NAME
+    echo "[Monthly] Backup done"
   fi
 
-  if $BACKUP_DAILY; then
-    if [[ "$(date +%A)" == "Monday" ]]; then
-      # Reset backup on Monday
-      echo "[Daily] Resetting backup since it is Monday"
-      rm $game_backup_dir/slim-backup-Daily.7z
-      if $BACKUP_DOW; then
-        echo "[Daily] Copying backup from DOW to use as base"
-        cp -p $game_backup_dir/slim-backup-$(date +%A).7z $game_backup_dir/slim-backup-Daily.7z
-      fi
+  ## Day of the Week Backup
+  echo "[DOW] Starting pre-Backup tasks"
+  rm $DOW_BACKUP_NAME
+  if [[ "$(date +%A)" == $WEEKLY_BACKUP_RESET_DAY ]]; then
+    if [ -f $MONTHLY_BACKUP_NAME ]; then
+      echo "[DOW] Found Monthly backup, Using as base"
+      cp $MONTHLY_BACKUP_NAME $DOW_BACKUP_NAME
     fi
-    7z_backup $game_backup_dir/slim-backup-Daily.7z $3 "$opts"
+  else
+    if [ -f $DOW_PREVIOUS_BACKUP_NAME ]; then
+      echo "[DOW] Found Previous DOW backup, Using as base"
+      cp -p --verbose $DOW_PREVIOUS_BACKUP_NAME $DOW_BACKUP_NAME
+    fi
   fi
+
+  if [ -f $DOW_BACKUP_NAME ]; then
+    # If the DOW file exists we're adding to an existing archive
+    7z_backup $DOW_BACKUP_NAME $3 "$opts"
+  else
+    # If the DOW file DOES NOT EXIST build new archive locally before moving
+    7z_backup /tmp/$DOW_BACKUP_NAME $3 "$opts"
+    mv /tmp/$DOW_BACKUP_NAME $DOW_BACKUP_NAME
+  fi
+  echo "[DOW] Backup done"
+
+  ## Daily Backup
+  echo "[Daily] Starting pre-Backup tasks"
+  if [[ "$(date +%A)" == $DAILY_BACKUP_RESET_DAY ]]; then
+    # Reset backup on Monday
+    echo "[Daily] Resetting backup"
+    rm $DAILY_BACKUP_NAME
+    echo "[Daily] Copying backup from DOW to use as base"
+    cp -p $DOW_BACKUP_NAME $DAILY_BACKUP_NAME
+  fi
+  7z_backup $DAILY_BACKUP_NAME $3 "$opts"
 
 }
 
