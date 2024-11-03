@@ -25,7 +25,7 @@ fi
 if [[ $BACKUP_CRONTAB ]]; then
     echo "Backup Crontabs"
     crontab -l > /home/$USERNAME/backups/root-crontab.backup
-    su -l $USERNAME -c 'crontab -l > /home/$USERNAME/backups/crontab.backup' || true
+    su -l $USERNAME -c "crontab -l > /home/$USERNAME/backups/crontab.backup" || true
 fi
 
 
