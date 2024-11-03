@@ -29,11 +29,14 @@ backup_gameserver () {
   opts=$(add_7z_exclude "$opts" "$source_folder_name/.bash_history")
   opts=$(add_7z_exclude "$opts" "$source_folder_name/.steam/")
   opts=$(add_7z_exclude "$opts" "$source_folder_name/.local/share/Steam/")
+  opts=$(add_7z_exclude "$opts" "$source_folder_name/.npm")
+  opts=$(add_7z_exclude "$opts" "$source_folder_name/log")
   opts=$(add_7z_exclude "$opts" "$source_folder_name/config-lgsm/")
 
   case $1 in
     "pz")
        opts=$(add_7z_exclude "$opts" "*/serverfiles")
+       opts=$(add_7z_exclude "$opts" "$source_folder_name/Zomboid/Logs")
       ;;
     "sf")
        opts=$(add_7z_exclude "$opts" "*/serverfiles")
@@ -48,8 +51,9 @@ backup_gameserver () {
        opts=$(add_7z_exclude "$opts" "*/serverfiles/7DaysToDieServer.x86_64")
        opts=$(add_7z_exclude "$opts" "*/serverfiles/mono_crash.mem*")
        opts=$(add_7z_exclude "$opts" "*/serverfiles/libstdc++.so.6")
-       opts=$(add_7z_exclude "$opts" "$source_folder_name/log/")
       ;;
+    "mc")
+       opts=$(add_7z_exclude "$opts" "$source_folder_name/data/serverfiles/logs")
     *)
       echo "Nothing special to do for $1"
       ;;
