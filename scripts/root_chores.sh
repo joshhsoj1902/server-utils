@@ -7,10 +7,17 @@ if [[ -z "${USERNAME}" ]]; then
     exit
 fi
 
+UPDATE_SERVER_UTILS="${UPDATE_SERVER_UTILS:-true}"
 UPDATE_PORTAINER="${UPDATE_PORTAINER:-true}"
 PRUNE_DOCKER="${PRUNE_DOCKER:-true}"
 BACKUP_CRONTAB="${BACKUP_CRONTAB:-true}"
 BACKUP_SERVER="${BACKUP_CRONTAB:-true}"
+
+if [[ $UPDATE_SERVER_UTILS ]]; then
+    echo "Updating Server Utils"
+    echo "TODO"
+    # /bin/bash $SELF_DIR/start-portainer.sh
+fi
 
 if [[ $UPDATE_PORTAINER ]]; then
     echo "Updating Portainer"
@@ -28,6 +35,10 @@ if [[ $BACKUP_CRONTAB ]]; then
     su -l $USERNAME -c "crontab -l > /home/$USERNAME/backups/crontab.backup" || true
 fi
 
+if [[ $BACKUP_SERVER ]]; then
+    echo "Backup Server"
+    su -l $USERNAME -c "/home/$USERNAME/server-utils/scripts/backup.sh"
+fi
 
 # 0 12 * * * /home/jellyfin/server-utils/scripts/start-portainer.sh
 # 30 12 * * * crontab -l > /home/jellyfin/backups/root-crontab.backup
