@@ -15,7 +15,6 @@ BACKUP_SERVER="${BACKUP_CRONTAB:-true}"
 
 if [[ $UPDATE_SERVER_UTILS ]]; then
     echo "Updating Server Utils"
-    echo "TODO"
     su -l $USERNAME -c "cd ~/server-utils && git pull" || true
 fi
 
