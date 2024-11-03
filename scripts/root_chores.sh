@@ -16,7 +16,7 @@ BACKUP_SERVER="${BACKUP_CRONTAB:-true}"
 if [[ $UPDATE_SERVER_UTILS ]]; then
     echo "Updating Server Utils"
     echo "TODO"
-    # /bin/bash $SELF_DIR/start-portainer.sh
+    su -l $USERNAME -c "cd ~/server-utils && git pull" || true
 fi
 
 if [[ $UPDATE_PORTAINER ]]; then
@@ -39,8 +39,3 @@ if [[ $BACKUP_SERVER ]]; then
     echo "Backup Server"
     su -l $USERNAME -c "/home/$USERNAME/server-utils/scripts/backup.sh"
 fi
-
-# 0 12 * * * /home/jellyfin/server-utils/scripts/start-portainer.sh
-# 30 12 * * * crontab -l > /home/jellyfin/backups/root-crontab.backup
-# 0 23 * * * docker start immich-josh-import-1
-# 0 1 * * * /home/jellyfin/server-utils/scripts/backup.sh
