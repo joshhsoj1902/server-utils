@@ -54,6 +54,7 @@ backup_gameserver () {
       ;;
     "mc")
        opts=$(add_7z_exclude "$opts" "$source_folder_name/data/serverfiles/logs")
+      ;;
     *)
       echo "Nothing special to do for $1"
       ;;
@@ -62,65 +63,64 @@ backup_gameserver () {
   BACKUP_NAME="slim-backup"
   BACKUP_FILETYPE=".7z"
   # MONTHLY_BACKUP_DAY Is the day of the month to make the backup
-  MONTHLY_BACKUP_DAY="02"
-  # WEEKLY_BACKUP_RESET_DAY Is the day of the week to make new backup instead of appending to the previous day.
-  WEEKLY_BACKUP_RESET_DAY="Monday"
+  MONTHLY_BACKUP_DAY="01"
   DAILY_BACKUP_RESET_DAY="Monday"
 
-  MONTHLY_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME-$(date +%B)$(date +"%Y")$BACKUP_FILETYPE
-  DOW_PREVIOUS_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME-$(date -d '1 day' +%A)$BACKUP_FILETYPE
-  DOW_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME-$(date +%A)$BACKUP_FILETYPE
+  MONTHLY_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME"-Monthly"$BACKUP_FILETYPE
   DAILY_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME"-Daily"$BACKUP_FILETYPE
 
-  echo $MONTHLY_BACKUP_NAME
-  echo $DOW_PREVIOUS_BACKUP_NAME
-  echo $DOW_BACKUP_NAME
-  echo $DAILY_BACKUP_NAME
+  FILES_CHANGED=false
+  FILES_CHANGED_COUNT=$(find $3 -type f -mtime -1 | wc -l)
 
+  if [[ "$FILES_CHANGED_COUNT" -gt "0" ]]; then
+    echo "$FILES_CHANGED_COUNT Files Changed in the last 24 hours in $3"
+    FILES_CHANGED=true
+  fi
 
   ## Monthly Backup
   if [[ "$(date +%d)" == $MONTHLY_BACKUP_DAY ]]; then
     echo "[Monthly] Starting Backup"
     7z_backup /tmp/$MONTHLY_BACKUP_NAME $3 "$opts"
-    mv /tmp/$MONTHLY_BACKUP_NAME $MONTHLY_BACKUP_NAME
+
+    OLD_FILESIZE=$(stat -c%s "$MONTHLY_BACKUP_NAME")
+    NEW_FILESIZE=$(stat -c%s "/tmp$MONTHLY_BACKUP_NAME")
+
+    if [[ "$OLD_FILESIZE" != "$NEW_FILESIZE" ]]; then
+      echo "Moving old monthly backup"
+      mv $MONTHLY_BACKUP_NAME $game_backup_dir/$BACKUP_NAME-$(date -r $MONTHLY_BACKUP_NAME +%B)$(date -r $MONTHLY_BACKUP_NAME +"%Y")$BACKUP_FILETYPE
+      echo "Moving new monthly backup into position"
+      mv /tmp/$MONTHLY_BACKUP_NAME $MONTHLY_BACKUP_NAME
+    else
+      echo "Backup size hasn't changed. Skipping upload"
+      rm /tmp/$MONTHLY_BACKUP_NAME
+    fi
+
     echo "[Monthly] Backup done"
   fi
 
-  ## Day of the Week Backup
-  echo "[DOW] Starting pre-Backup tasks"
-  rm $DOW_BACKUP_NAME
-  if [[ "$(date +%A)" == $WEEKLY_BACKUP_RESET_DAY ]]; then
-    if [ -f $MONTHLY_BACKUP_NAME ]; then
-      echo "[DOW] Found Monthly backup, Using as base"
-      cp $MONTHLY_BACKUP_NAME $DOW_BACKUP_NAME
-    fi
-  else
-    if [ -f $DOW_PREVIOUS_BACKUP_NAME ]; then
-      echo "[DOW] Found Previous DOW backup, Using as base"
-      cp -p --verbose $DOW_PREVIOUS_BACKUP_NAME $DOW_BACKUP_NAME
-    fi
-  fi
+  # Remove previously DOW
+  rm $game_backup_dir/$BACKUP_NAME-$(date +%A)$BACKUP_FILETYPE
+  if [[ $FILES_CHANGED ]]; then
+    ## Daily Backup
+    echo "Files have changed in the last day, doing daily backup"
+    echo "[Daily] Starting pre-Backup tasks"
 
-  if [ -f $DOW_BACKUP_NAME ]; then
-    # If the DOW file exists we're adding to an existing archive
-    7z_backup $DOW_BACKUP_NAME $3 "$opts"
-  else
-    # If the DOW file DOES NOT EXIST build new archive locally before moving
-    7z_backup /tmp/$DOW_BACKUP_NAME $3 "$opts"
-    mv /tmp/$DOW_BACKUP_NAME $DOW_BACKUP_NAME
-  fi
-  echo "[DOW] Backup done"
+    # If the current Daily backup was updated in the last 7 days, copy it as a DOW backup
+    if [[ "$(find $DAILY_BACKUP_NAME -type f -mtime -7 | wc -l)" -gt "0" ]]; then
+      echo "Creating DOW backup"
+      cp $DAILY_BACKUP_NAME $game_backup_dir/$BACKUP_NAME-$(date -r $DAILY_BACKUP_NAME +%A)$BACKUP_FILETYPE
+    fi
 
-  ## Daily Backup
-  echo "[Daily] Starting pre-Backup tasks"
-  if [[ "$(date +%A)" == $DAILY_BACKUP_RESET_DAY ]]; then
-    # Reset backup on Monday
-    echo "[Daily] Resetting backup"
-    rm $DAILY_BACKUP_NAME
-    echo "[Daily] Copying backup from DOW to use as base"
-    cp -p $DOW_BACKUP_NAME $DAILY_BACKUP_NAME
+    if [[ "$(date +%A)" == $DAILY_BACKUP_RESET_DAY ]]; then
+      # Reset backup on Monday
+      echo "[Daily] Resetting backup"
+      rm $DAILY_BACKUP_NAME
+      echo "[Daily] Using monthly backup as the base"
+      cp -p $MONTHLY_BACKUP_NAME $DAILY_BACKUP_NAME
+    fi
+    7z_backup $DAILY_BACKUP_NAME $3 "$opts"
+    echo "[Daily] Backup done"
   fi
-  7z_backup $DAILY_BACKUP_NAME $3 "$opts"
 
 }
 
