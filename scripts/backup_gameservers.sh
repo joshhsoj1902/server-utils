@@ -69,13 +69,7 @@ backup_gameserver () {
   MONTHLY_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME"-Monthly"$BACKUP_FILETYPE
   DAILY_BACKUP_NAME=$game_backup_dir/$BACKUP_NAME"-Daily"$BACKUP_FILETYPE
 
-  FILES_CHANGED=false
   FILES_CHANGED_COUNT=$(find $3 -type f -mtime -1 | wc -l)
-
-  if [[ "$FILES_CHANGED_COUNT" -gt "0" ]]; then
-    echo "$FILES_CHANGED_COUNT Files Changed in the last 24 hours in $3"
-    FILES_CHANGED=true
-  fi
 
   ## Monthly Backup
   if [[ "$(date +%d)" == $MONTHLY_BACKUP_DAY ]]; then
@@ -86,28 +80,30 @@ backup_gameserver () {
     NEW_FILESIZE=$(stat -c%s "/tmp$MONTHLY_BACKUP_NAME")
 
     if [[ "$OLD_FILESIZE" != "$NEW_FILESIZE" ]]; then
-      echo "Moving old monthly backup"
+      echo "[Monthly] Moving old monthly backup"
       mv $MONTHLY_BACKUP_NAME $game_backup_dir/$BACKUP_NAME-$(date -r $MONTHLY_BACKUP_NAME +%B)$(date -r $MONTHLY_BACKUP_NAME +"%Y")$BACKUP_FILETYPE
-      echo "Moving new monthly backup into position"
+      echo "[Monthly] Moving new monthly backup into position"
       mv /tmp/$MONTHLY_BACKUP_NAME $MONTHLY_BACKUP_NAME
     else
-      echo "Backup size hasn't changed. Skipping upload"
+      echo "[Monthly] Backup size hasn't changed. Skipping upload"
       rm /tmp/$MONTHLY_BACKUP_NAME
     fi
 
     echo "[Monthly] Backup done"
+  else
+    echo "[Monthly] Today ($(date +%d)) is not $MONTHLY_BACKUP_DAY. Skipping Monthly backup"
   fi
 
   # Remove previously DOW
   rm $game_backup_dir/$BACKUP_NAME-$(date +%A)$BACKUP_FILETYPE
-  if [[ $FILES_CHANGED ]]; then
+  if [[ "$FILES_CHANGED_COUNT" -gt "0" ]]; then
     ## Daily Backup
-    echo "Files have changed in the last day, doing daily backup"
+    echo "[Daily] $FILES_CHANGED_COUNT Files have changed in the last day, doing daily backup"
     echo "[Daily] Starting pre-Backup tasks"
 
     # If the current Daily backup was updated in the last 7 days, copy it as a DOW backup
     if [[ "$(find $DAILY_BACKUP_NAME -type f -mtime -7 | wc -l)" -gt "0" ]]; then
-      echo "Creating DOW backup"
+      echo "[Daily] Creating DOW backup"
       cp $DAILY_BACKUP_NAME $game_backup_dir/$BACKUP_NAME-$(date -r $DAILY_BACKUP_NAME +%A)$BACKUP_FILETYPE
     fi
 
@@ -120,17 +116,21 @@ backup_gameserver () {
     fi
     7z_backup $DAILY_BACKUP_NAME $3 "$opts"
     echo "[Daily] Backup done"
+  else
+    echo "[Daily] No files have changed in the last 24 hours. Skipping daily backup"
   fi
-
 }
 
+echo ""
+echo "###############################"
+echo "# Starting Gameserver Backups #"
+echo "###############################"
+echo ""
 
 for dir in $BACKUP_GAME_SRC/*/
 do
     dir=${dir%*/}
-
     folder_name=${dir##*/}
-    echo "testing $folder_name"
 
     OLDIFS="$IFS"
     IFS='_' read -r -a tokens <<< "$folder_name"
@@ -140,8 +140,35 @@ do
       continue
     fi
 
-    echo "Found LGSM gameserver of type ${tokens[1]} called ${tokens[2]}"
+    #Rebuild gamename in cases where the name includes _ (like a21_feb2024)
+    gamename=""
+    for i in $(seq 2 ${#tokens[@]});
+    do
+      if [[ "${tokens[$i]}" != "" ]]; then
+        if [[ "$gamename" == "" ]]; then
+          gamename="${tokens[$i]}"
+        else
+          gamename="${gamename}_${tokens[$i]}"
+        fi
+      fi
+    done
 
-    backup_gameserver ${tokens[1]} ${tokens[2]} $dir
+    # echo "Found LGSM gameserver of type ${tokens[1]} called $gamename"
 
+    echo ""
+    echo "###################################"
+    echo "## Starting backup for $gamename"
+    echo "## Gametype is ${tokens[1]}"
+    echo ""
+    backup_gameserver ${tokens[1]} $gamename $dir
+    echo ""
+    echo "## Finished backup for $gamename"
+    echo "###################################"
+    echo ""
 done
+
+echo ""
+echo "###############################"
+echo "# Finished Gameserver Backups #"
+echo "###############################"
+echo ""

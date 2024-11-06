@@ -11,6 +11,10 @@ A collection of uitls I use on my servers
 0 1 * * * ~/server-utils/scripts/image_prune.sh
 ```
 
+```crontab
+0 1 * * *  ~/server-utils/scripts/backup.sh > "$HOME/log/backup-$(date +%Y-%m-%d_%H:%M).log" 2>&1
+```
+
 ## Example fstab
 
 ```fstab
