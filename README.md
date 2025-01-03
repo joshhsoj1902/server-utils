@@ -12,7 +12,7 @@ A collection of uitls I use on my servers
 ```
 
 ```crontab
-0 1 * * *  ~/server-utils/scripts/backup.sh > "$HOME/log/backup-$(date +%Y-%m-%d_%H:%M).log" 2>&1
+0 3 * * * ~/server-utils/scripts/backup.sh > "$HOME/log/backup-$(date +\%Y-\%m-\%d_\%H:\%M).log" 2>&1
 ```
 
 ## Example fstab

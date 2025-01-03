@@ -12,6 +12,7 @@ UPDATE_PORTAINER="${UPDATE_PORTAINER:-true}"
 PRUNE_DOCKER="${PRUNE_DOCKER:-true}"
 BACKUP_CRONTAB="${BACKUP_CRONTAB:-true}"
 BACKUP_SERVER="${BACKUP_CRONTAB:-true}"
+REBOOT_SERVER="${REBOOT_SERVER:-false}"
 
 if [[ $UPDATE_SERVER_UTILS ]]; then
     echo "Updating Server Utils"
@@ -36,5 +37,11 @@ fi
 
 if [[ $BACKUP_SERVER ]]; then
     echo "Backup Server"
-    su -l $USERNAME -c "/home/$USERNAME/server-utils/scripts/backup.sh"
+    mkdir -p /home/$USERNAME/log
+    su -l $USERNAME -c "/home/$USERNAME/server-utils/scripts/backup.sh > \"/home/$USERNAME/log/backup-$(date +\%Y-\%m-\%d_\%H:\%M).log\" 2>&1"
+fi
+
+if [[ $REBOOT_SERVER ]]; then
+    echo "Rebooting Server in one minute"
+    shutdown -r +1
 fi
